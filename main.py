@@ -10,8 +10,8 @@ from tkinter import filedialog
 from PIL import ImageTk,Image 
 import cv2
 
-# # dehaze algo
-# from single_image_haze_removal import removeHazeUtility
+# dehaze algo
+from assets.algo.single_image_haze_removal import remove_haze_utility
 
 
 
@@ -72,6 +72,26 @@ def open_btn_handler():
     global placeholder_img_1, filename
     filename = filedialog.askopenfilename()
     placeholder_img_1 = pygame.image.load(filename)
+    pygame.display.update()
+
+def convert_btn_handler():
+    global placeholder_img_2, filename
+    remove_haze_utility(filename)
+    placeholder_img_2 = pygame.image.load('result.jpg')
+    pygame.display.update()
+
+def save_btn_handler():
+    files = [ ('JPEG image', '*.jpg'),
+             ('PNG image', '*.png')]
+    filename = filedialog.asksaveasfilename(filetypes = files, defaultextension = files)
+    dehazed_img = cv2.imread('result.jpg')
+    cv2.imwrite(filename, dehazed_img)
+
+def reset_btn_handler():
+    global placeholder_img_1, placeholder_img_2, filename
+    filename = ''
+    placeholder_img_1 = pygame.image.load( 'assets/images/placeholder_image.png')
+    placeholder_img_2 = pygame.image.load( 'assets/images/placeholder_image.png')
     pygame.display.update()
 
 # utility functions
@@ -148,13 +168,13 @@ while True:
         open_btn_handler()
 
     if convert_btn.draw():
-        print("clicked")
+        convert_btn_handler()
 
     if save_btn.draw():
-        print("clicked")
+        save_btn_handler()
 
     if reset_btn.draw():
-        print("clicked")
+        reset_btn_handler()
 
     # draw grid line
     if draw_rect:
