@@ -26,6 +26,7 @@ pygame.init()
 screen_width, screen_height = ( 1244, 712)
 bg_color = ( 114, 193, 238)
 pygame.display.set_caption( "Satlens")
+pygame.display.set_icon( pygame.image.load( 'assets/icon/icon.png'))
 screen = pygame.display.set_mode( ( screen_width, screen_height))
 
 # misc
@@ -82,8 +83,12 @@ def open_btn_handler():
         pygame.display.update()
 
 def convert_btn_handler():
-    global placeholder_img_2, filename
+    global placeholder_img_2, filename, screen
     if filename != '':
+        screen.blit( loading_scr_img, ( 0, 0))
+        screen.blit( loading_txt_img, ( 415, 292))
+        pygame.display.update()
+
         remove_haze_utility(filename)
         img = pygame.image.load('result.jpg')
         height, width = img.get_height(), img.get_width()
@@ -99,8 +104,16 @@ def save_btn_handler():
         files = [ ('JPEG image', '*.jpg'),
                 ('PNG image', '*.png')]
         savename = filedialog.asksaveasfilename(filetypes = files, defaultextension = files)
-        dehazed_img = cv2.imread('result.jpg')
-        cv2.imwrite(savename, dehazed_img)
+        if savename != '':
+            dehazed_img = cv2.imread('result.jpg')
+            cv2.imwrite(savename, dehazed_img)
+
+            reset_btn.draw()
+            convert_btn.draw()
+            screen.blit( loading_scr_img, ( 0, 0))
+            screen.blit( saved_txt_img, ( 415, 292))
+            pygame.display.update()
+            pygame.time.wait(1000)
 
 def reset_btn_handler():
     global placeholder_img_1, placeholder_img_2, filename
@@ -126,8 +139,11 @@ def drawGrid():
 # Load Assets ------------------------------------------------------------------------------------------------------------
 
 # ui img
-image_bg = pygame.image.load( 'assets/images/image_bg.png')
-logo_img = pygame.image.load( 'assets/images/logo.png')
+image_bg        = pygame.image.load( 'assets/images/image_bg.png')
+logo_img        = pygame.image.load( 'assets/images/logo.png')
+loading_scr_img = pygame.image.load( 'assets/images/loading_scr.png')
+loading_txt_img = pygame.image.load( 'assets/images/loading_txt.png')
+saved_txt_img   = pygame.image.load( 'assets/images/saved_txt.png')
 
 # btn img
 open_btn_img    = pygame.image.load( 'assets/btn/open.png')
@@ -188,14 +204,14 @@ while True:
     if open_btn.draw():
         open_btn_handler()
 
-    if convert_btn.draw():
-        convert_btn_handler()
-
     if save_btn.draw():
         save_btn_handler()
 
     if reset_btn.draw():
         reset_btn_handler()
+
+    if convert_btn.draw():
+        convert_btn_handler()
 
     # draw grid line
     if draw_rect:
