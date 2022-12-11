@@ -70,22 +70,37 @@ class Button():
 # btn controls
 def open_btn_handler():
     global placeholder_img_1, filename
-    filename = filedialog.askopenfilename()
-    placeholder_img_1 = pygame.image.load(filename)
-    pygame.display.update()
+    file_buffer = filedialog.askopenfilename()
+    if file_buffer != '':
+        filename = file_buffer
+        img = pygame.image.load(filename)
+        height, width = img.get_height(), img.get_width()
+        if width >= height:
+            placeholder_img_1 = pygame.transform.scale(img, ( 512, height * 512 // width))
+        else:
+            placeholder_img_1 = pygame.transform.scale(img, ( width * 512 // height, 512))
+        pygame.display.update()
 
 def convert_btn_handler():
     global placeholder_img_2, filename
-    remove_haze_utility(filename)
-    placeholder_img_2 = pygame.image.load('result.jpg')
-    pygame.display.update()
+    if filename != '':
+        remove_haze_utility(filename)
+        img = pygame.image.load('result.jpg')
+        height, width = img.get_height(), img.get_width()
+        if width >= height:
+            placeholder_img_2 = pygame.transform.scale(img, ( 512, height * 512 // width))
+        else:
+            placeholder_img_2 = pygame.transform.scale(img, ( width * 512 // height, 512))
+        pygame.display.update()
 
 def save_btn_handler():
-    files = [ ('JPEG image', '*.jpg'),
-             ('PNG image', '*.png')]
-    filename = filedialog.asksaveasfilename(filetypes = files, defaultextension = files)
-    dehazed_img = cv2.imread('result.jpg')
-    cv2.imwrite(filename, dehazed_img)
+    global filename
+    if filename != '':
+        files = [ ('JPEG image', '*.jpg'),
+                ('PNG image', '*.png')]
+        savename = filedialog.asksaveasfilename(filetypes = files, defaultextension = files)
+        dehazed_img = cv2.imread('result.jpg')
+        cv2.imwrite(savename, dehazed_img)
 
 def reset_btn_handler():
     global placeholder_img_1, placeholder_img_2, filename
@@ -142,11 +157,17 @@ while True:
     # fill bg color
     screen.fill( bg_color)
 
+    # calculate x and y padding for diffrent image sizes
+    xpad_1 = (512 - placeholder_img_1.get_width())  // 2
+    ypad_1 = (512 - placeholder_img_1.get_height()) // 2
+    xpad_2 = (512 - placeholder_img_2.get_width())  // 2
+    ypad_2 = (512 - placeholder_img_2.get_height()) // 2
+
     # fill images
     screen.blit( image_bg, ( 40, 40))
     screen.blit( image_bg, ( 652, 40))
-    screen.blit( placeholder_img_1, ( 60, 60))
-    screen.blit( placeholder_img_2, ( 672, 60))
+    screen.blit( placeholder_img_1, ( 60 + xpad_1, 60 + ypad_1))
+    screen.blit( placeholder_img_2, ( 672 + xpad_2, 60 + ypad_2))
     screen.blit( logo_img, ( 987, 617))
 
     # check for events
